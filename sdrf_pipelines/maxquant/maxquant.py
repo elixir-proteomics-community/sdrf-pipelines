@@ -885,7 +885,7 @@ class Maxquant:
                 file2fraction[raw] = 0
 
             # For different quantitative experiments
-            if "not  available" in row["comment[label]"]:
+            if "not available" in row["comment[label]"] or "not applicable" in row["comment[label]"]:
                 file2label[raw] = "label free sample"
             elif re.search("NT=(.+?)(;|$)", row["comment[label]"]) is not None:
                 label = re.search("NT=(.+?)(;|$)", row["comment[label]"]).group(1)
@@ -1692,7 +1692,6 @@ class Maxquant:
         tmp = []
 
         referenceChannel = doc.createElement("referenceChannel")
-
         for key1, instr_val in file2instrument.items():
             value2 = (
                 str(file2enzyme[key1]) + file2label[key1] + str(file2mods[key1]) + str(file2pctol) + str(file2fragtol)
@@ -2007,24 +2006,28 @@ class Maxquant:
             # create Modification subnode
             fixedModifications = doc.createElement("fixedModifications")
             variableModifications = doc.createElement("variableModifications")
-            fixedM_list = []
-            Variable_list = []
+
+            def parse_mods(mods):
+                mods_list = []
+                if mods != "":
+                    mods_list.extend(mods.split(","))
+                return list(set(mods_list))
+
+            fixedM_list = parse_mods(j["mods"][0])
+            Variable_list = parse_mods(j["mods"][1])
+
             fixedM_list.extend(j["mods"][0].split(","))
-            Variable_list.extend(j["mods"][1].split(","))
             fixedM_list = list(set(fixedM_list))
-            Variable_list = list(set(Variable_list))
-            if len(fixedM_list) > 0: 
-                for F in fixedM_list:
-                    string = doc.createElement("string")
-                    string.appendChild(doc.createTextNode(F))
-                    fixedModifications.appendChild(string)
-            if len(Variable_list) > 0:
-                for V in Variable_list:
-                    if "Lys8" == V or "Lys6" == V or "Lys4" == V or "Arg10" == V or "Arg6" == V:
-                        continue
-                    string = doc.createElement("string")
-                    string.appendChild(doc.createTextNode(V))
-                    variableModifications.appendChild(string)
+            for F in fixedM_list:
+                string = doc.createElement("string")
+                string.appendChild(doc.createTextNode(F))
+                fixedModifications.appendChild(string)
+            for V in Variable_list:
+                if V in ["Lys8", "Lys6", "Lys4", "Arg10", "Arg6"]:
+                    continue
+                string = doc.createElement("string")
+                string.appendChild(doc.createTextNode(V))
+                variableModifications.appendChild(string)
 
             # create enzymes subnode
             enzymes_node = doc.createElement("enzymes")
