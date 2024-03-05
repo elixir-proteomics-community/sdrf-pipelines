@@ -1,5 +1,46 @@
 # sdrf-pipelines
 
+The idea of this implementation to do a major refactoring and and use Pydantic to for schema validation to improve maintainability and add the ability to switch easily between file format like the original TSV-format or the planed JSON-format.
+
+This undertaking is discussed in [issue 159](https://github.com/bigbio/sdrf-pipelines/issues/159) with the original authors. For now 
+
+## Development
+The new source code is currently located in the subdirectory `pydantic_based/`. While the implementation is ongoing much of the original source code is hopefully integrated, into the new one. When the root directory is "free" the new code can be moved there. 
+
+### Contribution
+1. Please read the [issue 159](https://github.com/bigbio/sdrf-pipelines/issues/159) on the main repository to understand the intention.
+2. This implementation will be maintained in a [repository of the ELIXIR Proteomics Community](https://github.com/elixir-proteomics-community/sdrf-pipelines) for now, so nothing is mixed up. Please discuss things of the new implementation there unless it has something to do with the SDRF specification itself.
+
+### Getting started
+1. Clone the repository
+2. Checkout the branch `feature-pydantic-based-validation`
+3. Go into the subfolder `pydantic_based/`
+4. `conda env create -f environment.yml` will install all necessary binaries, like Python, PIP, Setuptools, and will also install this implementation if `sdrf-pipelines` as `sdrf-pipelines-pydantic` in editable mode. 
+5. Activate the environment: `conda activate sdrf-pipelines-pydantic-based`
+5. Start hacking
+
+### Separate Python-dependencies and binaries
+Please, don't mix up Conda and Python dependencies.
+1. Binaries like the Python-interpreter, PIP, Setuptools, etc. go into `environment.yml`
+2. Python dependencies, e.g. Pandas, pyyaml, ... go into `pyproject.toml`
+
+
+### Code style and cleaning
+Use `mypy` and the formatter `black` to clean your code before pushing anything! Both are really well integrated into Visual Studio Code but also available via CLI and for other IDEs.
+
+### Structure
+* Records: One record is on line of and SDRF-file (TSV-format)
+    * There should be on record for each defined [use case](https://github.com/bigbio/proteomics-sample-metadata/tree/master/templates)
+* Validators: A validator is a type and content check of a attributes
+    * An attribute can be a the entire content of a cell, e.g `characteristics[organism]` or of the attributes of further parsed information like `NT`, `PP` of the a `comment[modification parameters]`-cell
+* Converters:
+    1. Generate configuration or CLI calls for specific tools from the SDRF ([`sdrf-pipelines` already implements this for MaxQuant, OpenMS, and MStats](https://github.com/bigbio/proteomics-sample-metadata/wiki) in extend the [ELIXIR Proteomics Community created `sdrf-convert` which implements `X!tandem`, `Comet`, `DIANN`, ... and should be integrated here](https://github.com/elixir-proteomics-community/sdrf_convert))
+    2. [Extracting SDRF information from parameter and result files. A feature requested by the community behind ProteoBench](https://github.com/elixir-proteomics-community/sdrf_convert/issues/14)
+
+
+
+# <<< ORIGINAL README.md >>>
+# sdrf-pipelines
 ![Python application](https://github.com/bigbio/sdrf-pipelines/workflows/Python%20application/badge.svg)
 ![Python package](https://github.com/bigbio/sdrf-pipelines/workflows/Python%20package/badge.svg)
 ![Upload Python Package](https://github.com/bigbio/sdrf-pipelines/workflows/Upload%20Python%20Package/badge.svg)
@@ -174,9 +215,3 @@ parse_sdrf convert-normalyzerde -s ./testdata/PXD000288.sdrf.tsv -o ./testPXD000
 - Dai C, Füllgrabe A, Pfeuffer J, Solovyeva EM, Deng J, Moreno P, Kamatchinathan S, Kundu DJ, George N, Fexova S, Grüning B, Föll MC, Griss J, Vaudel M, Audain E, Locard-Paulet M, Turewicz M, Eisenacher M, Uszkoreit J, Van Den Bossche T, Schwämmle V, Webel H, Schulze S, Bouyssié D, Jayaram S, Duggineni VK, Samaras P, Wilhelm M, Choi M, Wang M, Kohlbacher O, Brazma A, Papatheodorou I, Bandeira N, Deutsch EW, Vizcaíno JA, Bai M, Sachsenberg T, Levitsky LI, Perez-Riverol Y. A proteomics sample metadata representation for multiomics integration and big data analysis. Nat Commun. 2021 Oct 6;12(1):5854. doi: 10.1038/s41467-021-26111-3. PMID: 34615866; PMCID: PMC8494749. [Manuscript](https://www.nature.com/articles/s41467-021-26111-3)
 
 - Perez-Riverol, Yasset, and European Bioinformatics Community for Mass Spectrometry. "Toward a Sample Metadata Standard in Public Proteomics Repositories." Journal of Proteome Research 19.10 (2020): 3906-3909. [Manuscript](https://pubs.acs.org/doi/abs/10.1021/acs.jproteome.0c00376)
-
-
-# Development
-
-## Pydantic based version
-See [pydantic_based/README.md](pydantic_based/README.md) for more informations.
