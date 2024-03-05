@@ -13,6 +13,8 @@ from xml.dom.minidom import parse
 
 import numpy as np
 import pandas as pd
+
+# NOTE pkg_resources is deprecated
 import pkg_resources
 import yaml
 
@@ -73,7 +75,7 @@ class Maxquant:
                     lt = lt + "TMT2plex-Lys" + i.replace("TMT", "") + ","
         return lt
 
-    def extractTMT_info(self, label="TMT2", mods=None):
+    def extract_tmt_info(self, label="TMT2", mods=None):
         lt = ""
         label_list = sorted(label)
         label_head = [re.search(r"TMT(\d+)plex-", i).group(1) for i in mods if "TMT" in i]
@@ -547,7 +549,6 @@ class Maxquant:
                 domTree.writexml(fp, encoding="utf-8")
 
     def maxquant_ify_mods(self, sdrf_mods, mqconfdir):
-
         mq_mods_file = self.modfile
         mod_pattern = re.compile(r"(.*?) \(")
         if mqconfdir:
@@ -1226,7 +1227,7 @@ class Maxquant:
         root.appendChild(secondPeptide)
 
         matchBetweenRuns_node = doc.createElement("matchBetweenRuns")
-        if "enable_match_between_runs" in file2params:
+        if "enable_match_between_runs" in file2params and len(file2params["enable_match_between_runs"]) > 0:
             first = list(file2params["enable_match_between_runs"].values())[0]
             matchBetweenRuns = True
             matchBetweenRuns_node.appendChild(doc.createTextNode(first))
@@ -1351,7 +1352,7 @@ class Maxquant:
         root.appendChild(intensityPredictionsFile)
 
         minPepLen = doc.createElement("minPepLen")
-        if "min_peptide_length" in file2params:
+        if "min_peptide_length" in file2params and len(file2params["min_peptide_length"]) > 0:
             tparam = file2params["min_peptide_length"]
             first = list(tparam.values())[0]
             minPepLen.appendChild(doc.createTextNode(first))
@@ -1369,7 +1370,7 @@ class Maxquant:
         root.appendChild(psmFdrCrosslink)
 
         peptideFdr = doc.createElement("peptideFdr")
-        if "ident_fdr_peptide" in file2params:
+        if "ident_fdr_peptide" in file2params and len(file2params["ident_fdr_peptide"]) > 0:
             tparam = file2params["ident_fdr_peptide"]
             first = list(tparam.values())[0]
             warning_message = "overwriting peptide FDR using the value in the sdrf file"
@@ -1383,7 +1384,7 @@ class Maxquant:
         root.appendChild(peptideFdr)
 
         proteinFdr = doc.createElement("proteinFdr")
-        if "ident_fdr_protein" in file2params:
+        if "ident_fdr_protein" in file2params and len(file2params["ident_fdr_protein"]) > 0:
             tparam = file2params["ident_fdr_protein"]
             first = list(tparam.values())[0]
             warning_message = "overwriting protein FDR using the value in the sdrf file"
@@ -1397,7 +1398,7 @@ class Maxquant:
         root.appendChild(proteinFdr)
 
         siteFdr = doc.createElement("siteFdr")
-        if "ident_fdr_psm" in file2params:
+        if "ident_fdr_psm" in file2params and len(file2params["ident_fdr_psm"]) > 0:
             tparam = file2params["ident_fdr_psm"]
             first = list(tparam.values())[0]
             warning_message = "overwriting PSM FDR using the value in the sdrf file"
@@ -1423,7 +1424,7 @@ class Maxquant:
         root.appendChild(useNormRatiosForOccupancy)
 
         minPeptides = doc.createElement("minPeptides")
-        if "min_num_peptides" in file2params:
+        if "min_num_peptides" in file2params and len(file2params["min_num_peptides"]) > 0:
             tparam = file2params["min_num_peptides"]
             first = list(tparam.values())[0]
             minPeptides.appendChild(doc.createTextNode(first))
@@ -1505,7 +1506,7 @@ class Maxquant:
         root.appendChild(compositionPrediction)
 
         quantMode = doc.createElement("quantMode")
-        if "protein_inference" in file2params:
+        if "protein_inference" in file2params and len(file2params["protein_inference"]) > 0:
             tparam = file2params["protein_inference"]
             first = list(tparam.values())[0]
             if first == "unique":

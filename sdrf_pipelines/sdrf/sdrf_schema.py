@@ -1,5 +1,6 @@
 import logging
 import re
+import sys
 import typing
 from typing import Any
 
@@ -56,7 +57,12 @@ def ontology_term_parser(cell_value: str = None):
     else:
         for name in values:
             value_terms = name.split("=")
-            term[value_terms[0].strip().upper()] = value_terms[1].strip().lower()
+            if len(value_terms) == 2:
+                term[value_terms[0].strip().upper()] = value_terms[1].strip().lower()
+            else:
+                raise ValueError(
+                    f"Invalid term: {name} after splitting by '=', please check the prefix (e.g. AC, NT, " f"TA..)"
+                )
     return term
 
 
@@ -109,8 +115,8 @@ class OntologyTerm(_SeriesValidation):
     @staticmethod
     def validate_ontology_terms(cell_value, labels):
         """
-        Check if a cell value is in a list of labels or list of strings
-        :param cell_value: string line in cell
+        Check if a cell value is in a list of labels or list of string
+        :param cell_value: line in a cell
         :param labels: list of labels
         :return:
         """
@@ -124,7 +130,7 @@ class OntologyTerm(_SeriesValidation):
         """
         Validate if the term is present in the provided ontology. This method looks in the provided
         ontology _ontology_name
-        :param series: return the series that do not match the criteria
+        :param series: return series that do not match the criteria
         :return:
         """
         terms = [ontology_term_parser(x) for x in series.unique()]
@@ -140,8 +146,8 @@ class OntologyTerm(_SeriesValidation):
 
             if ontology_terms is not None:
                 query_labels = [o["label"].lower() for o in ontology_terms]
-                for label in query_labels:
-                    labels.append(label)
+                if term[TERM_NAME] in query_labels:
+                    labels.append(term[TERM_NAME])
         if self._not_available:
             labels.append(NOT_AVAILABLE)
         if self._not_applicable:
@@ -165,7 +171,7 @@ class SDRFSchema(Schema):
     def validate(self, panda_sdrf: sdrf = None) -> typing.List[LogicError]:
         errors = []
 
-        # Check minimum number of columns
+        # Check the minimum number of columns
         if check_minimum_columns(panda_sdrf, self._min_columns):
             error_message = (
                 "The number of columns in the SDRF ({}) is smaller than the number of mandatory fields ({})".format(
@@ -174,12 +180,16 @@ class SDRFSchema(Schema):
             )
             errors.append(LogicError(error_message, error_type=logging.WARN))
 
+        empty_cells_errors = self.validate_empty_cells(panda_sdrf)
+        if empty_cells_errors:
+            errors.extend(empty_cells_errors)
+
         # Check the mandatory fields
         error_mandatory = self.validate_mandatory_columns(panda_sdrf)
         if error_mandatory is not None:
             errors.append(error_mandatory)
 
-        # Check the columns order
+        # Check the column order
         error_columns_order = self.validate_columns_order(panda_sdrf)
         if error_columns_order is not None:
             errors.extend(error_columns_order)
@@ -211,7 +221,7 @@ class SDRFSchema(Schema):
             m = re.match(self._column_template, cname)
             if not m:
                 errors.append(cname)
-            if m.group().startswith("factor value"):
+            elif m.group().startswith("factor value"):
                 if (
                     m.group().replace("factor value", "comment") not in panda_sdrf.columns
                     and m.group().replace("factor value", "characteristics") not in panda_sdrf.columns
@@ -304,6 +314,37 @@ class SDRFSchema(Schema):
         for series, column in column_pairs:
             warnings += column.validate_optional(series)
         return sorted(warnings, key=lambda e: e.row)
+
+    def validate_empty_cells(self, panda_sdrf):
+        """
+        Check for empty cells in the SDRF. This method will return a list of errors if any empty cell is found.
+        :param panda_sdrf: SDRF dataframe
+        :return: List of errors
+        """
+        errors = []
+
+        def validate_string(cell_value):
+            return cell_value is not None and cell_value != "nan" and len(cell_value.strip()) > 0
+
+        if sys.version_info <= (3, 8):
+            # Use map for Python versions less than 3.8
+            validation_results = panda_sdrf.map(validate_string)
+        else:
+            # Use applymap for Python versions 3.8 and above
+            validation_results = panda_sdrf.applymap(validate_string)
+
+        # Get the indices where the validation fails
+        failed_indices = [
+            (row, col)
+            for row in validation_results.index
+            for col in validation_results.columns
+            if not validation_results.at[row, col]
+        ]
+
+        for row, col in failed_indices:
+            message = f"Empty value found Row: {row}, Column: {col}"
+            errors.append(LogicError(message, error_type=logging.ERROR))
+        return errors
 
 
 default_schema = SDRFSchema(
