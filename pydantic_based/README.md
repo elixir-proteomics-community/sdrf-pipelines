@@ -24,7 +24,6 @@ Please, don't mix up Conda and Python dependencies.
 1. Binaries like the Python-interpreter, PIP, Setuptools, etc. go into `environment.yml`
 2. Python dependencies, e.g. Pandas, pyyaml, ... go into `pyproject.toml`
 
-
 ### Code style and cleaning
 Use `mypy` and the formatter `black` to clean your code before pushing anything! Both are really well integrated into Visual Studio Code but also available via CLI and for other IDEs.
 
@@ -39,6 +38,9 @@ Use `mypy` and the formatter `black` to clean your code before pushing anything!
 
 ### Running tests
 Tests living in the `tests`-module unter `tests`. Just run `python -m unittest`
+
+## TODOs & Ideas (collect them as issues and discussions?)
+* severity level attributes (e.g. faulty organism is more sever than a miss typed disease)
 
 
 
