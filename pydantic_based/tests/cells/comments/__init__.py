@@ -1,3 +1,6 @@
+"""General tests for the `comments` module.
+"""
+
 from typing import Dict, Tuple, Type
 from unittest import TestCase
 

@@ -37,6 +37,9 @@ Use `mypy` and the formatter `black` to clean your code before pushing anything!
     1. Generate configuration or CLI calls for specific tools from the SDRF ([`sdrf-pipelines` already implements this for MaxQuant, OpenMS, and MStats](https://github.com/bigbio/proteomics-sample-metadata/wiki) in extend the [ELIXIR Proteomics Community created `sdrf-convert` which implements `X!tandem`, `Comet`, `DIANN`, ... and should be integrated here](https://github.com/elixir-proteomics-community/sdrf_convert))
     2. [Extracting SDRF information from parameter and result files. A feature requested by the community behind ProteoBench](https://github.com/elixir-proteomics-community/sdrf_convert/issues/14)
 
+### Running tests
+Tests living in the `tests`-module unter `tests`. Just run `python -m unittest`
+
 
 
 # <<< ORIGINAL README.md >>>
