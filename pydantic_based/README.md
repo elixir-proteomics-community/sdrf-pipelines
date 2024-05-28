@@ -28,6 +28,8 @@ Please, don't mix up Conda and Python dependencies.
 Use `mypy` and the formatter `black` to clean your code before pushing anything! Both are really well integrated into Visual Studio Code but also available via CLI and for other IDEs.
 
 ### Structure
+* Cell: Stores and validates the value of one cell, e.g. for the `characteristics[organism]`
+    * Sub modules contain different cell types, e.g. `charaxteristics`, `comments`, ...
 * Records: One record is on line of and SDRF-file (TSV-format)
     * There should be on record for each defined [use case](https://github.com/bigbio/proteomics-sample-metadata/tree/master/templates)
 * Validators: A validator is a type and content check of a attributes
@@ -37,7 +39,7 @@ Use `mypy` and the formatter `black` to clean your code before pushing anything!
     2. [Extracting SDRF information from parameter and result files. A feature requested by the community behind ProteoBench](https://github.com/elixir-proteomics-community/sdrf_convert/issues/14)
 
 ### Running tests
-Tests living in the `tests`-module unter `tests`. Just run `python -m unittest`
+Tests living in the `tests`-module under `tests`. Just run `python -m unittest`
 
 ## TODOs & Ideas (collect them as issues and discussions?)
 * severity level attributes (e.g. faulty organism is more sever than a miss typed disease)
